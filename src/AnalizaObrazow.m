@@ -117,6 +117,37 @@ catch
     uiwait(errordlg('Nie mozna zapisac do pliku', 'Problem'));
 end 
 
+% check if pixel value is in valid range
+function returnedValue = truncate(value)
+    if(value<0)
+        value=0;
+    end
+    if(value>255)
+        value=255;
+    end
+    returnedValue = value;
+
+% BRIGHTNESS implementation
+function returnedImage = brightness(image, factor)
+        i = image;
+        %separate the image into three different 2d matrices of R, G, B
+        R = double(i(:, :, 1));
+        G = double(i(:, :, 2));
+        B = double(i(:, :, 3));
+        %new image containing all zeros - same size as the original
+        newImage = zeros(size(i,1), size(i,2), 'uint8');
+        
+        %
+        for x=1:size(i,1)
+           for y=1:size(i,2)
+               newImage(x,y,1) = truncate(R(x,y)+factor);
+               newImage(x,y,2) = truncate(G(x,y)+factor);
+               newImage(x,y,3) = truncate(B(x,y)+factor);
+           end
+        end
+        
+        returnedImage = newImage;
+
 
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
@@ -126,6 +157,16 @@ function slider1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    workingImg = brightness(srcImg, get(hObject,'Value'));
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(srcImg);
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -133,11 +174,33 @@ function slider1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
+set(hObject, 'Min', -255, 'Max', 255);
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% CONTRAST implementation
+function returnedImage = contrast(image, factor)
+        i = image;
+        %separate the image into three different 2d matrices of R, G, B
+        R = double(i(:, :, 1));
+        G = double(i(:, :, 2));
+        B = double(i(:, :, 3));
+        %new image containing all zeros - same size as the original
+        newImage = zeros(size(i,1), size(i,2), 'uint8');
+        
+        %
+        for x=1:size(i,1)
+           for y=1:size(i,2)
+               newImage(x,y,1) = truncate(factor*(R(x,y)-128)+128);
+               newImage(x,y,2) = truncate(factor*(G(x,y)-128)+128);
+               newImage(x,y,3) = truncate(factor*(B(x,y)-128)+128);
+           end
+        end
+        
+        returnedImage = newImage;
 
 
 % --- Executes on slider movement.
@@ -148,18 +211,51 @@ function slider2_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    c = get(hObject,'Value');
+    factor = 259*(c + 255) / (255*(259-c));
+    workingImg = contrast(srcImg, factor);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(srcImg);
+end
 
 % --- Executes during object creation, after setting all properties.
 function slider2_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
+set(hObject, 'Min', -255, 'Max', 255);
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% GAMMA CORRECTION implementation
+function returnedImage = gamma(image, g)
+        i = image;
+        %separate the image into three different 2d matrices of R, G, B
+        R = double(i(:, :, 1));
+        G = double(i(:, :, 2));
+        B = double(i(:, :, 3));
+        %new image containing all zeros - same size as the original
+        newImage = zeros(size(i,1), size(i,2), 'uint8');
+        
+        %
+        for x=1:size(i,1)
+           for y=1:size(i,2)
+               newImage(x,y,1) = 255*(R(x,y)/255)^g;
+               newImage(x,y,2) = 255*(G(x,y)/255)^g;
+               newImage(x,y,3) = 255*(B(x,y)/255)^g;
+           end
+        end
+        
+        returnedImage = newImage;
 
 
 % --- Executes on slider movement.
@@ -170,14 +266,24 @@ function slider3_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    g = 1/get(hObject,'Value');
+    workingImg = gamma(srcImg, g);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(srcImg);
+end
 
 % --- Executes during object creation, after setting all properties.
 function slider3_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
+set(hObject, 'Min', 0.01, 'Max', 3.99);
 % Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
