@@ -246,7 +246,6 @@ function returnedImage = gamma(image, g)
         %new image containing all zeros - same size as the original
         newImage = zeros(size(i,1), size(i,2), 'uint8');
         
-        %
         for x=1:size(i,1)
            for y=1:size(i,2)
                newImage(x,y,1) = 255*(R(x,y)/255)^g;
@@ -327,6 +326,55 @@ else
     imshow(srcImg);
 end
 
+
+% BINARIZE implementation with Otsu's method thresholding
+function returnedImage = binarize(image)
+    i=toGrayscale(image);
+    [counts,binLocations] = imhist(i);
+    
+    all = sum(counts);
+    sumAll = 0.0;
+    for p=0:255
+        sumAll = sumAll + p*counts(p+1);
+    end
+    sumB = 0.0;
+    weightB = 0.0;
+    weightF = 0.0;
+    max = 0.0;
+    t=0;
+    for p=0:255
+        weightB = weightB + counts(p+1);
+        if(weightB == 0)
+            continue;
+        end
+        weightF = all - weightB;
+        if(weightF==0)
+            continue;
+        end
+        sumB = sumB + p*counts(p+1);
+        meanB = sumB/weightB;
+        meanF = (sumAll-sumB)/weightF;
+        %Calculate the individual class variance
+        between = weightB * weightF * (meanB - meanF)^2;
+        if(between > max)
+            max = between;
+            t=p;
+        end
+    end
+    
+    newImage = zeros(size(i,1), size(i,2), 'uint8');
+        
+    for x=1:size(i,1)
+        for y=1:size(i,2)
+        	if i(x,y)>t
+            	newImage(x,y) = 255;
+            end
+        end
+    end
+    
+    returnedImage = newImage;
+    
+
 % --- Executes on button press in checkbox2.
 function checkbox2_Callback(hObject, eventdata, handles)
 % hObject    handle to checkbox2 (see GCBO)
@@ -334,7 +382,16 @@ function checkbox2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox2
-
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    workingImg = binarize(srcImg);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(srcImg);
+end
 
 % --- Executes on button press in checkbox3.
 function checkbox3_Callback(hObject, eventdata, handles)
