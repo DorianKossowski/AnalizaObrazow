@@ -135,7 +135,7 @@ function returnedImage = brightness(image, factor)
         G = double(i(:, :, 2));
         B = double(i(:, :, 3));
         %new image containing all zeros - same size as the original
-        newImage = zeros(size(i,1), size(i,2), 'uint8');
+        newImage = zeros(size(i,1), size(i,2), 3, 'uint8');
         
         %
         for x=1:size(i,1)
@@ -189,7 +189,7 @@ function returnedImage = contrast(image, factor)
         G = double(i(:, :, 2));
         B = double(i(:, :, 3));
         %new image containing all zeros - same size as the original
-        newImage = zeros(size(i,1), size(i,2), 'uint8');
+        newImage = zeros(size(i,1), size(i,2), 3, 'uint8');
         
         %
         for x=1:size(i,1)
@@ -244,7 +244,7 @@ function returnedImage = gamma(image, g)
         G = double(i(:, :, 2));
         B = double(i(:, :, 3));
         %new image containing all zeros - same size as the original
-        newImage = zeros(size(i,1), size(i,2), 'uint8');
+        newImage = zeros(size(i,1), size(i,2), 3, 'uint8');
         
         for x=1:size(i,1)
            for y=1:size(i,2)
@@ -400,3 +400,37 @@ function checkbox3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
+
+
+function returnedImage = rotate(image, degrees)
+    img = image;
+    [h,w,z] = size(img); 
+    rads = deg2rad(degrees);  
+
+    % calculating array dimesions such that  rotated image gets fit in it exactly
+    new_h = ceil(h*abs(cos(rads))+w*abs(sin(rads)));                      
+    new_w = ceil(h*abs(sin(rads))+w*abs(cos(rads)));                     
+
+    %new image containing all zeros - calculated size
+    rotatedImg = zeros(new_h, new_w, 3, 'uint8');
+
+    %calculating center of original and rotated image
+    x0 = ceil(h/2);                                                            
+    y0 = ceil(w/2);
+    new_x0 = ceil((size(rotatedImg,1))/2);
+    new_y0 = ceil((size(rotatedImg,2))/2);
+
+    for x=1:size(rotatedImg,1)
+        for y=1:size(rotatedImg,2)                                                       
+             xx = (x-new_x0)*cos(rads)+(y-new_y0)*sin(rads);                                       
+             yy = -(x-new_x0)*sin(rads)+(y-new_y0)*cos(rads);                             
+             xx = round(xx)+x0;
+             yy = round(yy)+y0;
+             if (xx>=1 && yy>=1 && xx<=size(img,1) &&  yy<=size(img,2) ) 
+                  rotatedImg(x,y,:)=img(xx,yy,:);  
+             end
+        end
+    end
+
+    returnedImage=rotatedImg;
+
