@@ -401,7 +401,7 @@ function checkbox3_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
 
-
+%ROTATION implementation
 function returnedImage = rotate(image, degrees)
     img = image;
     [h,w,z] = size(img); 
@@ -434,3 +434,36 @@ function returnedImage = rotate(image, degrees)
 
     returnedImage=rotatedImg;
 
+
+%VERTICAL SYMMETRICAL REFLECTION implementation
+function returnedImage = verticalSymmetricalReflection(image)
+	img = image;
+    
+    %new image containing all zeros - same size as the originals
+	newImage=zeros(size(img,1), size(img,2), 3, 'uint8');
+
+	for x=1:size(img,1)
+        for y=1:size(img,2)
+            x_new = (size(img,1)+1) - x;
+            newImage(x_new,y,:)=img(x,y,:);
+        end
+    end
+    
+    returnedImage=newImage;
+    
+    
+%HORIZONTAL SYMMETRICAL REFLECTION implementation
+function returnedImage = horizontalSymmetricalReflection(image)
+	img = image;
+    
+    %new image containing all zeros - same size as the originals
+	newImage=zeros(size(img,1), size(img,2), 3, 'uint8');
+
+	for x=1:size(img,1)
+        for y=1:size(img,2)
+            y_new = (size(img,2)+1) - y;
+            newImage(x,y_new,:)=img(x,y,:);
+        end
+    end
+    
+    returnedImage=newImage;
