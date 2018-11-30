@@ -22,7 +22,7 @@ function varargout = AnalizaObrazow(varargin)
 
 % Edit the above text to modify the response to help AnalizaObrazow
 
-% Last Modified by GUIDE v2.5 27-Nov-2018 22:43:32
+% Last Modified by GUIDE v2.5 30-Nov-2018 23:58:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -76,46 +76,12 @@ varargout{1} = handles.output;
 %GLOBAL VARS
 global srcImg;
 global workingImg;
+
+global srcImg2_1;
+global srcImg2_2;
+global dstImg2;
 %//////////////////////////////////////////////////////////////////////////
-
-% --- Executes on button press in pushbutton1.
-function pushbutton1_Callback(hObject, eventdata, handles)  %LOAD TO FILE
-% hObject    handle to pushbutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-[file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
-try
-    if not(isequal(file,0))
-        global srcImg;
-        srcImg = imread ([folder, file]);
-        axes(handles.axes1);
-        imshow(srcImg);
-    end
-catch
-    uiwait(errordlg('Nie mozna odczytac pliku', 'Problem'));
-end
-
-
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)  %SAVE TO FILE
-% hObject    handle to pushbutton3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-[file, folder] = uiputfile('.jpg');
-try
-    if not(isequal(file,0))
-        global srcImg;
-        
-        %grayscale checkbox
-        if get(handles.checkbox1, 'Value')
-            srcImg = toGrayscale(srcImg);
-        end
-        
-        imwrite(srcImg, fullfile(folder, file));
-    end
-catch
-    uiwait(errordlg('Nie mozna zapisac do pliku', 'Problem'));
-end 
+%IMPLEMENTATIONS
 
 % checks if pixel value is in valid range
 function returnedValue = truncate(value)
@@ -146,40 +112,7 @@ function returnedImage = brightness(image, factor)
         end
         
         returnedImage = newImage;
-
-
-% --- Executes on slider movement.
-function slider1_Callback(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-global srcImg;
-global workingImg;
-if get(hObject,'Value')
-    workingImg = brightness(srcImg, get(hObject,'Value'));
-    axes(handles.axes1);
-    imshow(workingImg);
-else
-    axes(handles.axes1);
-    imshow(srcImg);
-end
-
-
-% --- Executes during object creation, after setting all properties.
-function slider1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-set(hObject, 'Min', -255, 'Max', 255);
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
+        
 % CONTRAST implementation
 function returnedImage = contrast(image, factor)
         i = image;
@@ -200,41 +133,7 @@ function returnedImage = contrast(image, factor)
         end
         
         returnedImage = newImage;
-
-
-% --- Executes on slider movement.
-function slider2_Callback(hObject, eventdata, handles)
-% hObject    handle to slider2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-global srcImg;
-global workingImg;
-if get(hObject,'Value')
-    c = get(hObject,'Value');
-    factor = 259*(c + 255) / (255*(259-c));
-    workingImg = contrast(srcImg, factor);
-    axes(handles.axes1);
-    imshow(workingImg);
-else
-    axes(handles.axes1);
-    imshow(srcImg);
-end
-
-% --- Executes during object creation, after setting all properties.
-function slider2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-set(hObject, 'Min', -255, 'Max', 255);
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
+        
 % GAMMA CORRECTION implementation
 function returnedImage = gamma(image, g)
         i = image;
@@ -254,39 +153,7 @@ function returnedImage = gamma(image, g)
         end
         
         returnedImage = newImage;
-
-
-% --- Executes on slider movement.
-function slider3_Callback(hObject, eventdata, handles)
-% hObject    handle to slider3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-global srcImg;
-global workingImg;
-if get(hObject,'Value')
-    g = 1/get(hObject,'Value');
-    workingImg = gamma(srcImg, g);
-    axes(handles.axes1);
-    imshow(workingImg);
-else
-    axes(handles.axes1);
-    imshow(srcImg);
-end
-
-% --- Executes during object creation, after setting all properties.
-function slider3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-set(hObject, 'Min', 0.01, 'Max', 3.99);
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
+        
 % GRAYSCALE implementation
 function returnedImage = toGrayscale(image)
         i = image;
@@ -305,27 +172,7 @@ function returnedImage = toGrayscale(image)
         end
         
         returnedImage = newImage;
-
-
-% --- Executes on button press in checkbox1.
-function checkbox1_Callback(hObject, eventdata, handles)    %GRAYSCALE
-% hObject    handle to checkbox1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of checkbox1
-
-global srcImg;
-global workingImg;
-if get(hObject,'Value')
-    workingImg = toGrayscale(srcImg);
-    axes(handles.axes1);
-    imshow(workingImg);
-else
-    axes(handles.axes1);
-    imshow(srcImg);
-end
-
-
+        
 % BINARIZE implementation with Otsu's method thresholding
 function returnedImage = binarize(image)
     i = toGrayscale(image);
@@ -372,33 +219,49 @@ function returnedImage = binarize(image)
     
     returnedImage = newImage;
     
+% HISTOGRAM EQUALIZATION implementation
+function returnedImage = histEqual(image)
+    gIm = toGrayscale(image);
+    
+    pixelCounter = zeros(1,256);
+    [height,width] = size(gIm);
 
-% --- Executes on button press in checkbox2.
-function checkbox2_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+    %Compute the number of occurrences of each gray level
+    for i = 1:height
+        for j = 1:width
+            pixelCounter( gIm(i,j) + 1 ) = pixelCounter( gIm(i,j) + 1 ) + 1;
+        end
+    end
 
-% Hint: get(hObject,'Value') returns toggle state of checkbox2
-global srcImg;
-global workingImg;
-if get(hObject,'Value')
-    workingImg = binarize(srcImg);
-    axes(handles.axes1);
-    imshow(workingImg);
-else
-    axes(handles.axes1);
-    imshow(srcImg);
-end
+    %Compute the probability of an occurrence of each gray level
+    pixelProb = zeros(1,256);
+    for i = 1:256
+        pixelProb(i) = pixelCounter(i) / (height * width * 1.0);
+    end
+    
+    %Compute the cumulative distribution function
+    pixelCum = zeros(1,256);
+    for i = 1:256
+        if i == 1
+            pixelCum(i) = pixelProb(i);
+        else
+            pixelCum(i) = pixelCum(i - 1) + pixelProb(i);
+        end
+    end
+    
+    %Mapping
+    map = zeros(1,256);
+    for i = 1:256
+        map(i) = uint8(255 * pixelCum(i) + 0.5);
+    end
+    for i = 1:height
+        for j = 1:width
+            gIm(i,j) = map(gIm(i,j) + 1);
+        end
+    end
 
-% --- Executes on button press in checkbox3.
-function checkbox3_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox3
-
+    returnedImage = gIm;
+    
 % ROTATION implementation
 function returnedImage = rotate(image, degrees)
     img = image;
@@ -515,3 +378,399 @@ function returnedImage = maxOfTwoImages(image1, image2)
     end
 
     returnedImage = newImage;
+%//////////////////////////////////////////////////////////////////////////
+      
+
+% --- Executes on button press in pushbutton1.
+function pushbutton1_Callback(hObject, eventdata, handles)  %LOAD TO FILE
+% hObject    handle to pushbutton1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
+try
+    if not(isequal(file,0))
+        global srcImg;
+        global workingImg;
+        srcImg = imread ([folder, file]);
+        workingImg = srcImg;
+        axes(handles.axes1);
+        imshow(workingImg);
+        set(handles.popupmenu2, 'enable', 'on');
+        set(handles.popupmenu2, 'value', 1);
+        
+        set(handles.edit1, 'enable', 'on');
+        set(handles.edit1, 'string', 0);
+        
+        set(handles.checkbox4, 'enable', 'on');
+        set(handles.checkbox4, 'value', 0);
+        set(handles.checkbox5, 'enable', 'on');
+        set(handles.checkbox5, 'value', 0);
+        set(handles.pushbutton3, 'enable', 'on');
+        slidersVisible(handles, 'off');
+    end
+catch
+    uiwait(errordlg('Nie mozna odczytac pliku', 'Problem'));
+end
+
+
+% --- Executes on button press in pushbutton3.
+function pushbutton3_Callback(hObject, eventdata, handles)  %SAVE TO FILE
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[file, folder] = uiputfile('.jpg');
+try
+    if not(isequal(file,0))
+        global workingImg; 
+        imwrite(workingImg, fullfile(folder, file));
+    end
+catch
+    uiwait(errordlg('Nie mozna zapisac do pliku', 'Problem'));
+end 
+
+
+% --- Executes on slider movement.
+function slider1_Callback(hObject, eventdata, handles)
+% hObject    handle to slider1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    workingImg = brightness(srcImg, get(hObject,'Value'));
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(srcImg);
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function slider1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+set(hObject, 'Min', -255, 'Max', 255);
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+% --- Executes on slider movement.
+function slider2_Callback(hObject, eventdata, handles)
+% hObject    handle to slider2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    c = get(hObject,'Value');
+    factor = 259*(c + 255) / (255*(259-c));
+    workingImg = contrast(srcImg, factor);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(srcImg);
+end
+
+% --- Executes during object creation, after setting all properties.
+function slider2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+set(hObject, 'Min', -255, 'Max', 255);
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+% --- Executes on slider movement.
+function slider3_Callback(hObject, eventdata, handles)
+% hObject    handle to slider3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    g = 1/get(hObject,'Value');
+    workingImg = gamma(srcImg, g);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(srcImg);
+end
+
+% --- Executes during object creation, after setting all properties.
+function slider3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+set(hObject, 'Min', 0.01, 'Max', 3.99);
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+% --- Executes on button press in checkbox3.
+function checkbox3_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox3
+
+
+
+function slidersVisible(handles, flag)
+    set(handles.slider1,'visible',flag)
+    set(handles.slider2,'visible',flag)
+    set(handles.slider3,'visible',flag)
+    set(handles.text2,'visible',flag)
+    set(handles.text3,'visible',flag)
+    set(handles.text4,'visible',flag)  
+    
+% --- Executes on selection change in popupmenu2.           %POPUPMENU
+function popupmenu2_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu2
+global srcImg;
+global workingImg;
+content = get(hObject, 'Value');
+switch content
+    case 1  %default
+        axes(handles.axes1);
+        imshow(srcImg);
+        slidersVisible(handles, 'off');
+    case 2  %sliders
+        axes(handles.axes1);
+        imshow(srcImg);
+        slidersVisible(handles, 'on');
+    case 3  %grayscale
+        slidersVisible(handles, 'off');
+        workingImg = toGrayscale(srcImg);
+        axes(handles.axes1);
+        imshow(workingImg);
+    case 4  %binarize
+        slidersVisible(handles, 'off');
+        workingImg = binarize(srcImg);
+        axes(handles.axes1);
+        imshow(workingImg);
+    case 5 %histogram equalization
+        slidersVisible(handles, 'off');
+        workingImg = histEqual(srcImg);
+        axes(handles.axes1);
+        imshow(workingImg);
+end
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit1 as text
+%        str2double(get(hObject,'String')) returns contents of edit1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in checkbox4.
+function checkbox4_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox4
+
+
+% --- Executes on button press in checkbox5.
+function checkbox5_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox5
+
+
+% --- Executes on button press in pushbutton4.
+function pushbutton4_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.uipanel1, 'visible', 'on');
+set(handles.uipanel2, 'visible', 'off');
+
+% --- Executes on button press in pushbutton5.
+function pushbutton5_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.uipanel1, 'visible', 'off');
+set(handles.uipanel2, 'visible', 'on');
+
+% --- Executes on button press in pushbutton6.
+function pushbutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
+try
+    if not(isequal(file,0))
+        global srcImg2_1;
+        srcImg2_1 = imread ([folder, file]);
+        axes(handles.axes2);
+        imshow(srcImg2_1);
+        set(handles.pushbutton10, 'enable', 'on');
+    end
+catch
+    uiwait(errordlg('Nie mozna odczytac pliku', 'Problem'));
+end
+
+% --- Executes on button press in pushbutton7.
+function pushbutton7_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% --- Executes on button press in pushbutton8.
+function pushbutton8_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.uipanel1, 'visible', 'on');
+set(handles.uipanel2, 'visible', 'off');
+
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.uipanel1, 'visible', 'off');
+set(handles.uipanel2, 'visible', 'on');
+
+% --- Executes on button press in pushbutton10.
+function pushbutton10_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
+try
+    if not(isequal(file,0))
+        global srcImg2_2;
+        srcImg2_2 = imread ([folder, file]);
+        axes(handles.axes3);
+        imshow(srcImg2_2);
+        set(handles.popupmenu4, 'enable', 'on');
+    end
+catch
+    uiwait(errordlg('Nie mozna odczytac pliku', 'Problem'));
+end
+
+
+% --- Executes on selection change in popupmenu4.
+function popupmenu4_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu4 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu4
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit4_Callback(hObject, eventdata, handles)
+% hObject    handle to edit4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit4 as text
+%        str2double(get(hObject,'String')) returns contents of edit4 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
