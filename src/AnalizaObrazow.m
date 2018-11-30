@@ -117,7 +117,7 @@ catch
     uiwait(errordlg('Nie mozna zapisac do pliku', 'Problem'));
 end 
 
-% check if pixel value is in valid range
+% checks if pixel value is in valid range
 function returnedValue = truncate(value)
     if(value<0)
         value=0;
@@ -137,7 +137,6 @@ function returnedImage = brightness(image, factor)
         %new image containing all zeros - same size as the original
         newImage = zeros(size(i,1), size(i,2), 3, 'uint8');
         
-        %
         for x=1:size(i,1)
            for y=1:size(i,2)
                newImage(x,y,1) = truncate(R(x,y)+factor);
@@ -288,7 +287,7 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
-%GRAYSCALE implementation
+% GRAYSCALE implementation
 function returnedImage = toGrayscale(image)
         i = image;
         %separate the image into three different 2d matrices of R, G, B
@@ -329,7 +328,7 @@ end
 
 % BINARIZE implementation with Otsu's method thresholding
 function returnedImage = binarize(image)
-    i=toGrayscale(image);
+    i = toGrayscale(image);
     [counts,binLocations] = imhist(i);
     
     all = sum(counts);
@@ -339,7 +338,6 @@ function returnedImage = binarize(image)
     end
     sumB = 0.0;
     weightB = 0.0;
-    weightF = 0.0;
     max = 0.0;
     t=0;
     for p=0:255
@@ -354,7 +352,7 @@ function returnedImage = binarize(image)
         sumB = sumB + p*counts(p+1);
         meanB = sumB/weightB;
         meanF = (sumAll-sumB)/weightF;
-        %Calculate the individual class variance
+        %calculating the individual class variance
         between = weightB * weightF * (meanB - meanF)^2;
         if(between > max)
             max = between;
@@ -401,13 +399,13 @@ function checkbox3_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox3
 
-%ROTATION implementation
+% ROTATION implementation
 function returnedImage = rotate(image, degrees)
     img = image;
-    [h,w,z] = size(img); 
+    [h,w,d] = size(img); 
     rads = deg2rad(degrees);  
 
-    % calculating array dimesions such that  rotated image gets fit in it exactly
+    %calculating new image size
     new_h = ceil(h*abs(cos(rads))+w*abs(sin(rads)));                      
     new_w = ceil(h*abs(sin(rads))+w*abs(cos(rads)));                     
 
@@ -427,20 +425,20 @@ function returnedImage = rotate(image, degrees)
              xx = round(xx)+x0;
              yy = round(yy)+y0;
              if (xx>=1 && yy>=1 && xx<=size(img,1) &&  yy<=size(img,2) ) 
-                  rotatedImg(x,y,:)=img(xx,yy,:);  
+                  rotatedImg(x,y,:) = img(xx,yy,:);  
              end
         end
     end
 
-    returnedImage=rotatedImg;
+    returnedImage = rotatedImg;
 
 
-%VERTICAL SYMMETRICAL REFLECTION implementation
+% VERTICAL SYMMETRICAL REFLECTION implementation
 function returnedImage = verticalSymmetricalReflection(image)
 	img = image;
     
     %new image containing all zeros - same size as the originals
-	newImage=zeros(size(img,1), size(img,2), 3, 'uint8');
+	newImage = zeros(size(img,1), size(img,2), 3, 'uint8');
 
 	for x=1:size(img,1)
         for y=1:size(img,2)
@@ -449,21 +447,71 @@ function returnedImage = verticalSymmetricalReflection(image)
         end
     end
     
-    returnedImage=newImage;
+    returnedImage = newImage;
     
     
-%HORIZONTAL SYMMETRICAL REFLECTION implementation
+% HORIZONTAL SYMMETRICAL REFLECTION implementation
 function returnedImage = horizontalSymmetricalReflection(image)
 	img = image;
     
     %new image containing all zeros - same size as the originals
-	newImage=zeros(size(img,1), size(img,2), 3, 'uint8');
+	newImage = zeros(size(img,1), size(img,2), 3, 'uint8');
 
 	for x=1:size(img,1)
         for y=1:size(img,2)
             y_new = (size(img,2)+1) - y;
-            newImage(x,y_new,:)=img(x,y,:);
+            newImage(x,y_new,:) = img(x,y,:);
         end
     end
     
-    returnedImage=newImage;
+    returnedImage = newImage;
+    
+    
+% ADD WITH WEIGHTS implementation
+function returnedImage = addWithWeights(image1, image2, weight)
+    im1=image1;
+    im2 = image2;
+    [h,w,d]=size(im1);
+    im2=imresize(im2, [h,w]);
+    
+    returnedImage = weight*im1+(1-weight)*im2;
+    
+    
+% MIN OF TWO IMAGES implementation
+function returnedImage = minOfTwoImages(image1, image2)
+    im1=image1;
+    im2 = image2;
+    [h,w,d]=size(im1);
+    im2=imresize(im2, [h,w]);
+    newImage = zeros(h, w, 3, 'uint8');
+    for x=1:h
+        for y=1:w
+            if im1(x,y)<im2(x,y)
+                newImage(x,y,:) = im1(x,y,:);
+            else
+                newImage(x,y,:) = im2(x,y,:);
+            end
+        end
+    end
+
+    returnedImage = newImage;
+    
+    
+% MAX OF TWO IMAGES implementation
+function returnedImage = maxOfTwoImages(image1, image2)
+    im1=image1;
+    im2 = image2;
+    [h,w,d]=size(im1);
+    im2=imresize(im2, [h,w]);
+    newImage = zeros(h, w, 3, 'uint8');
+    for x=1:h
+        for y=1:w
+            if im1(x,y)>im2(x,y)
+                newImage(x,y,:) = im1(x,y,:);
+            else
+                newImage(x,y,:) = im2(x,y,:);
+            end
+        end
+    end
+
+    returnedImage = newImage;
