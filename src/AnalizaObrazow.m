@@ -408,9 +408,6 @@ function returnImg = divide(i1, i2)
 
 % --- Executes on button press in pushbutton1.
 function pushbutton1_Callback(hObject, eventdata, handles)  %LOAD TO FILE
-% hObject    handle to pushbutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 [file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
 try
     if not(isequal(file,0))
@@ -440,14 +437,12 @@ end
 
 % --- Executes on button press in pushbutton3.
 function pushbutton3_Callback(hObject, eventdata, handles)  %SAVE TO FILE
-% hObject    handle to pushbutton3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 [file, folder] = uiputfile('.jpg');
 try
     if not(isequal(file,0))
         global workingImg; 
         imwrite(workingImg, fullfile(folder, file));
+        uiwait(msgbox(strcat('Poprawnie zapisano: ', fullfile(folder, file)), 'Sukces'));
     end
 catch
     uiwait(errordlg('Nie mozna zapisac do pliku', 'Problem'));
@@ -558,12 +553,6 @@ function slidersVisible(handles, flag)
     
 % --- Executes on selection change in popupmenu2.           %POPUPMENU
 function popupmenu2_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu2
 global srcImg;
 global workingImg;
 content = get(hObject, 'Value');
@@ -648,17 +637,11 @@ function checkbox5_Callback(hObject, eventdata, handles)
 
 % --- Executes on button press in pushbutton5.
 function pushbutton5_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton5 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 set(handles.uipanel1, 'visible', 'off');
 set(handles.uipanel2, 'visible', 'on');
 
 % --- Executes on button press in pushbutton6.
-function pushbutton6_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton6 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function pushbutton6_Callback(hObject, eventdata, handles) %LOAD 1st
 [file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
 try
     if not(isequal(file,0))
@@ -671,7 +654,8 @@ try
         axes(handles.axes4);
         imshow([]); 
         set(handles.popupmenu4, 'value', 1);
-        
+        disableEdits(handles);
+        set(handles.pushbutton7, 'enable', 'off');
         set(handles.pushbutton10, 'enable', 'on');
     end
 catch
@@ -679,24 +663,25 @@ catch
 end
 
 % --- Executes on button press in pushbutton7.
-function pushbutton7_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton7 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function pushbutton7_Callback(hObject, eventdata, handles)  %SAVE FILE
+[file, folder] = uiputfile('.jpg');
+try
+    if not(isequal(file,0))
+        global dstImg2; 
+        imwrite(dstImg2, fullfile(folder, file));
+        uiwait(msgbox(strcat('Poprawnie zapisano: ', fullfile(folder, file)), 'Sukces'));
+    end
+catch
+    uiwait(errordlg('Nie mozna zapisac do pliku', 'Problem'));
+end
 
 % --- Executes on button press in pushbutton8.
 function pushbutton8_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton8 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 set(handles.uipanel1, 'visible', 'on');
 set(handles.uipanel2, 'visible', 'off');
 
 % --- Executes on button press in pushbutton10.
-function pushbutton10_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function pushbutton10_Callback(hObject, eventdata, handles) %LOAD 2nd
 [file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
 try
     if not(isequal(file,0))
@@ -709,46 +694,67 @@ try
         axes(handles.axes4);
         imshow([]); 
         set(handles.popupmenu4, 'value', 1);
+        disableEdits(handles);
+        set(handles.pushbutton7, 'enable', 'off');
     end
 catch
     uiwait(errordlg('Nie mozna odczytac pliku', 'Problem'));
 end
 
-% --- Executes on selection change in popupmenu4.
-function popupmenu4_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function disableEdits(handles)
+    set(handles.edit3, 'enable', 'off');
+    set(handles.edit4, 'enable', 'off');
+    set(handles.edit3, 'string', 1);
+    set(handles.edit3, 'value', 1);
+    set(handles.edit4, 'string', 1);
+    set(handles.edit4, 'value', 1);
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu4 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu4
+% --- Executes on selection change in popupmenu4.
+function popupmenu4_Callback(hObject, eventdata, handles)   %POPUPMENU
 global srcImg2_1;
 global srcImg2_2;
+global dstImg2;
 content = get(hObject, 'Value');
+
+if content==3
+    set(handles.edit3, 'enable', 'on');
+    set(handles.edit4, 'enable', 'on');
+else
+    disableEdits(handles);
+end
+
+if content==1
+    set(handles.pushbutton7, 'enable', 'off');
+else
+    set(handles.pushbutton7, 'enable', 'on');
+end
+
 switch content
-    case 1  %default
-        slidersVisible(handles, 'off');
     case 2  %add
+        dstImg2 = add(srcImg2_1, srcImg2_2);
         axes(handles.axes4);
-        imshow(add(srcImg2_1, srcImg2_2));
+        imshow(dstImg2);
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 3  %add with importance
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 4  %substract
+        dstImg2 = substract(srcImg2_1, srcImg2_2);
         axes(handles.axes4);
-        imshow(substract(srcImg2_1, srcImg2_2));
+        imshow(dstImg2);
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 5 %multiply
+        dstImg2 = multiply(srcImg2_1, srcImg2_2);
         axes(handles.axes4);
-        imshow(multiply(srcImg2_1, srcImg2_2))
+        imshow(dstImg2)
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 6 %divide
+        dstImg2 = divide(srcImg2_1, srcImg2_2);
         axes(handles.axes4);
-        imshow(divide(srcImg2_1, srcImg2_2))
+        imshow(dstImg2)
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 7 %MIN
