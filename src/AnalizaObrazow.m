@@ -60,7 +60,8 @@ guidata(hObject, handles);
 
 % UIWAIT makes AnalizaObrazow wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-
+set(handles.uipanel1, 'visible', 'on');
+set(handles.uipanel2, 'visible', 'off');
 
 % --- Outputs from this function are returned to the command line.
 function varargout = AnalizaObrazow_OutputFcn(hObject, eventdata, handles) 
@@ -378,6 +379,30 @@ function returnedImage = maxOfTwoImages(image1, image2)
     end
 
     returnedImage = newImage;
+
+%ADD implementation
+function returnImg = add(i1, i2)
+    [h,w,d]=size(i1);
+    i2=imresize(i2,[h,w]);
+    returnImg = (i1+i2)/2;
+
+%SUBSTRACT implementation
+function returnImg = substract(i1, i2)
+    [h,w,d]=size(i1);
+    i2=imresize(i2,[h,w]);
+    returnImg = (i1-i2)/2;
+    
+%MULTIPLY implementation
+function returnImg = multiply(i1, i2)
+    [h,w,d]=size(i1);
+    i2=imresize(i2,[h,w]);
+    returnImg = i1.*i2;
+    
+%DIVIDE implementation
+function returnImg = divide(i1, i2)
+    [h,w,d]=size(i1);
+    i2=imresize(i2,[h,w]);
+    returnImg = i1./i2;
 %//////////////////////////////////////////////////////////////////////////
       
 
@@ -523,16 +548,6 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
-% --- Executes on button press in checkbox3.
-function checkbox3_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox3
-
-
-
 function slidersVisible(handles, flag)
     set(handles.slider1,'visible',flag)
     set(handles.slider2,'visible',flag)
@@ -631,15 +646,6 @@ function checkbox5_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
 
-
-% --- Executes on button press in pushbutton4.
-function pushbutton4_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-set(handles.uipanel1, 'visible', 'on');
-set(handles.uipanel2, 'visible', 'off');
-
 % --- Executes on button press in pushbutton5.
 function pushbutton5_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton5 (see GCBO)
@@ -656,10 +662,16 @@ function pushbutton6_Callback(hObject, eventdata, handles)
 [file, folder] = uigetfile('*.jpg', 'Wybierz obraz do przetowrzenia');
 try
     if not(isequal(file,0))
+        
         global srcImg2_1;
         srcImg2_1 = imread ([folder, file]);
         axes(handles.axes2);
         imshow(srcImg2_1);
+        
+        axes(handles.axes4);
+        imshow([]); 
+        set(handles.popupmenu4, 'value', 1);
+        
         set(handles.pushbutton10, 'enable', 'on');
     end
 catch
@@ -680,14 +692,6 @@ function pushbutton8_Callback(hObject, eventdata, handles)
 set(handles.uipanel1, 'visible', 'on');
 set(handles.uipanel2, 'visible', 'off');
 
-% --- Executes on button press in pushbutton9.
-function pushbutton9_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-set(handles.uipanel1, 'visible', 'off');
-set(handles.uipanel2, 'visible', 'on');
-
 % --- Executes on button press in pushbutton10.
 function pushbutton10_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton10 (see GCBO)
@@ -701,11 +705,14 @@ try
         axes(handles.axes3);
         imshow(srcImg2_2);
         set(handles.popupmenu4, 'enable', 'on');
+        
+        axes(handles.axes4);
+        imshow([]); 
+        set(handles.popupmenu4, 'value', 1);
     end
 catch
     uiwait(errordlg('Nie mozna odczytac pliku', 'Problem'));
 end
-
 
 % --- Executes on selection change in popupmenu4.
 function popupmenu4_Callback(hObject, eventdata, handles)
@@ -715,7 +722,42 @@ function popupmenu4_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu4 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu4
-
+global srcImg2_1;
+global srcImg2_2;
+content = get(hObject, 'Value');
+switch content
+    case 1  %default
+        slidersVisible(handles, 'off');
+    case 2  %add
+        axes(handles.axes4);
+        imshow(add(srcImg2_1, srcImg2_2));
+        set(handles.axes4, 'visible', 'on');
+        axis off;
+    case 3  %add with importance
+        set(handles.axes4, 'visible', 'on');
+        axis off;
+    case 4  %substract
+        axes(handles.axes4);
+        imshow(substract(srcImg2_1, srcImg2_2));
+        set(handles.axes4, 'visible', 'on');
+        axis off;
+    case 5 %multiply
+        axes(handles.axes4);
+        imshow(multiply(srcImg2_1, srcImg2_2))
+        set(handles.axes4, 'visible', 'on');
+        axis off;
+    case 6 %divide
+        axes(handles.axes4);
+        imshow(divide(srcImg2_1, srcImg2_2))
+        set(handles.axes4, 'visible', 'on');
+        axis off;
+    case 7 %MIN
+        set(handles.axes4, 'visible', 'on');
+        axis off;
+    case 8 %MAX
+        set(handles.axes4, 'visible', 'on');
+        axis off;
+end
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu4_CreateFcn(hObject, eventdata, handles)
