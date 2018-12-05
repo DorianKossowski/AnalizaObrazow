@@ -603,6 +603,17 @@ function edit1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit1 as text
 %        str2double(get(hObject,'String')) returns contents of edit1 as a double
+global srcImg;
+global workingImg;
+if get(hObject,'String')
+    angle = str2double(get(hObject,'String'));
+    workingImg = rotate(workingImg, angle);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(workingImg);
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -625,7 +636,16 @@ function checkbox4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
-
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    workingImg = horizontalSymmetricalReflection(workingImg);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(workingImg);
+end
 
 % --- Executes on button press in checkbox5.
 function checkbox5_Callback(hObject, eventdata, handles)
@@ -634,6 +654,16 @@ function checkbox5_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
+global srcImg;
+global workingImg;
+if get(hObject,'Value')
+    workingImg = verticalSymmetricalReflection(workingImg);
+    axes(handles.axes1);
+    imshow(workingImg);
+else
+    axes(handles.axes1);
+    imshow(workingImg);
+end
 
 % --- Executes on button press in pushbutton5.
 function pushbutton5_Callback(hObject, eventdata, handles)
@@ -718,7 +748,6 @@ content = get(hObject, 'Value');
 
 if content==3
     set(handles.edit3, 'enable', 'on');
-    set(handles.edit4, 'enable', 'on');
 else
     disableEdits(handles);
 end
@@ -748,19 +777,25 @@ switch content
     case 5 %multiply
         dstImg2 = multiply(srcImg2_1, srcImg2_2);
         axes(handles.axes4);
-        imshow(dstImg2)
+        imshow(dstImg2);
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 6 %divide
         dstImg2 = divide(srcImg2_1, srcImg2_2);
         axes(handles.axes4);
-        imshow(dstImg2)
+        imshow(dstImg2);
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 7 %MIN
+        dstImg2 = minOfTwoImages(srcImg2_1, srcImg2_2);
+        axes(handles.axes4);
+        imshow(dstImg2);
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 8 %MAX
+        dstImg2 = maxOfTwoImages(srcImg2_1, srcImg2_2);
+        axes(handles.axes4);
+        imshow(dstImg2);
         set(handles.axes4, 'visible', 'on');
         axis off;
 end
@@ -778,7 +813,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function edit3_Callback(hObject, eventdata, handles)
 % hObject    handle to edit3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -786,7 +820,24 @@ function edit3_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit3 as text
 %        str2double(get(hObject,'String')) returns contents of edit3 as a double
-
+global srcImg2_1;
+global srcImg2_2;
+global dstImg2;
+if get(hObject,'String')
+    w1 = str2double(get(hObject,'String'));
+    if w1>=0 && w1<=1
+        set(handles.edit4, 'string', num2str(1.0-w1));
+        dstImg2 = addWithWeights(srcImg2_1, srcImg2_2, w1);
+        axes(handles.axes4);
+        imshow(dstImg2);
+    else
+        uiwait(errordlg('Waga musi byæ z przedzia³u [0, 1]', 'Problem'));
+    end
+else
+    set(handles.edit4, 'string', '1');
+    axes(handles.axes4);
+    imshow(srcImg2_2);
+end
 
 % --- Executes during object creation, after setting all properties.
 function edit3_CreateFcn(hObject, eventdata, handles)
@@ -799,7 +850,6 @@ function edit3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function edit4_Callback(hObject, eventdata, handles)
