@@ -77,6 +77,7 @@ varargout{1} = handles.output;
 %GLOBAL VARS
 global srcImg;
 global workingImg;
+global rotatedImg;
 
 global srcImg2_1;
 global srcImg2_2;
@@ -440,8 +441,13 @@ function pushbutton3_Callback(hObject, eventdata, handles)  %SAVE TO FILE
 [file, folder] = uiputfile('.jpg');
 try
     if not(isequal(file,0))
-        global workingImg; 
-        imwrite(workingImg, fullfile(folder, file));
+        global workingImg;
+        angle = str2double(get(handles.edit1,'String'));
+        if angle ~= 0
+            imwrite(rotate(workingImg, angle), fullfile(folder, file));
+        else
+            imwrite(workingImg, fullfile(folder, file));
+        end
         uiwait(msgbox(strcat('Poprawnie zapisano: ', fullfile(folder, file)), 'Sukces'));
     end
 catch
@@ -459,6 +465,12 @@ function slider1_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 global srcImg;
 global workingImg;
+
+set(handles.edit1, 'string', '0');
+set(handles.edit1, 'value', 0);
+set(handles.checkbox4, 'value', 0);
+set(handles.checkbox5, 'value', 0);
+
 if get(hObject,'Value')
     workingImg = brightness(srcImg, get(hObject,'Value'));
     axes(handles.axes1);
@@ -490,6 +502,12 @@ function slider2_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 global srcImg;
 global workingImg;
+
+set(handles.edit1, 'string', '0');
+set(handles.edit1, 'value', 0);
+set(handles.checkbox4, 'value', 0);
+set(handles.checkbox5, 'value', 0);
+
 if get(hObject,'Value')
     c = get(hObject,'Value');
     factor = 259*(c + 255) / (255*(259-c));
@@ -522,6 +540,12 @@ function slider3_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 global srcImg;
 global workingImg;
+
+set(handles.edit1, 'string', '0');
+set(handles.edit1, 'value', 0);
+set(handles.checkbox4, 'value', 0);
+set(handles.checkbox5, 'value', 0);
+
 if get(hObject,'Value')
     g = 1/get(hObject,'Value');
     workingImg = gamma(srcImg, g);
@@ -550,11 +574,24 @@ function slidersVisible(handles, flag)
     set(handles.text2,'visible',flag)
     set(handles.text3,'visible',flag)
     set(handles.text4,'visible',flag)  
+
+function reset(handles)
+    set(handles.edit1, 'string', '0');
+    set(handles.edit1, 'value', 0);
+    set(handles.slider1, 'value', 0.5);
+    set(handles.slider2, 'value', 0.5);
+    set(handles.slider3, 'value', 0.5);
+    set(handles.checkbox4, 'value', 0);
+    set(handles.checkbox5, 'value', 0);
     
 % --- Executes on selection change in popupmenu2.           %POPUPMENU
 function popupmenu2_Callback(hObject, eventdata, handles)
 global srcImg;
 global workingImg;
+
+workingImg = srcImg;
+reset(handles);
+
 content = get(hObject, 'Value');
 switch content
     case 1  %default
@@ -594,8 +631,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -605,11 +640,12 @@ function edit1_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit1 as a double
 global srcImg;
 global workingImg;
+global rotatedImg;
 if get(hObject,'String')
     angle = str2double(get(hObject,'String'));
-    workingImg = rotate(workingImg, angle);
+    rotatedImg = rotate(workingImg, angle);
     axes(handles.axes1);
-    imshow(workingImg);
+    imshow(rotatedImg);
 else
     axes(handles.axes1);
     imshow(workingImg);
@@ -638,14 +674,14 @@ function checkbox4_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of checkbox4
 global srcImg;
 global workingImg;
-if get(hObject,'Value')
-    workingImg = horizontalSymmetricalReflection(workingImg);
-    axes(handles.axes1);
-    imshow(workingImg);
-else
-    axes(handles.axes1);
-    imshow(workingImg);
-end
+
+set(handles.edit1, 'string', '0');
+set(handles.edit1, 'value', 0);
+
+workingImg = horizontalSymmetricalReflection(workingImg);
+axes(handles.axes1);
+imshow(workingImg);
+
 
 % --- Executes on button press in checkbox5.
 function checkbox5_Callback(hObject, eventdata, handles)
@@ -656,14 +692,14 @@ function checkbox5_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of checkbox5
 global srcImg;
 global workingImg;
-if get(hObject,'Value')
-    workingImg = verticalSymmetricalReflection(workingImg);
-    axes(handles.axes1);
-    imshow(workingImg);
-else
-    axes(handles.axes1);
-    imshow(workingImg);
-end
+
+set(handles.edit1, 'string', '0');
+set(handles.edit1, 'value', 0);
+
+workingImg = verticalSymmetricalReflection(workingImg);
+axes(handles.axes1);
+imshow(workingImg);
+
 
 % --- Executes on button press in pushbutton5.
 function pushbutton5_Callback(hObject, eventdata, handles)
@@ -734,10 +770,10 @@ end
 function disableEdits(handles)
     set(handles.edit3, 'enable', 'off');
     set(handles.edit4, 'enable', 'off');
-    set(handles.edit3, 'string', 1);
-    set(handles.edit3, 'value', 1);
-    set(handles.edit4, 'string', 1);
-    set(handles.edit4, 'value', 1);
+    set(handles.edit3, 'string', 0.5);
+    set(handles.edit3, 'value', 0.5);
+    set(handles.edit4, 'string', 0.5);
+    set(handles.edit4, 'value', 0.5);
 
 % --- Executes on selection change in popupmenu4.
 function popupmenu4_Callback(hObject, eventdata, handles)   %POPUPMENU
@@ -766,6 +802,11 @@ switch content
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 3  %add with importance
+        set(handles.edit3, 'string', 0.5);
+        set(handles.edit4, 'string', 0.5);
+        dstImg2 = addWithWeights(srcImg2_1, srcImg2_2, 0.5);
+        axes(handles.axes4);
+        imshow(dstImg2);
         set(handles.axes4, 'visible', 'on');
         axis off;
     case 4  %substract
@@ -831,7 +872,7 @@ if get(hObject,'String')
         axes(handles.axes4);
         imshow(dstImg2);
     else
-        uiwait(errordlg('Waga musi byæ z przedzia³u [0, 1]', 'Problem'));
+        uiwait(errordlg('Waga musi byc z przedzialu [0, 1]', 'Problem'));
     end
 else
     set(handles.edit4, 'string', '1');
